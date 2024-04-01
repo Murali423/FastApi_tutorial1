@@ -1,6 +1,6 @@
 from enum import Enum
 from fastapi import FastAPI
-
+from typing import Optional
 
 app = FastAPI()
 
@@ -20,6 +20,10 @@ async def put():
 @app.get("/item")
 async def list_route():
     return {"meassage":"This is from the list of routes"}
+
+# @app.get("/item")
+# async def list_route1():
+#     return {"meassage":"This is from the list of routes"}
 
 @app.get("/item/{item_id}")
 async def get_item(item_id: int):
@@ -48,3 +52,32 @@ async def get_food(food_item:FoodEnum):
                 }
     return {"food_name":food_item,"message":"I like choclate milk"}
 
+fake_item_db = [{"item_name":"Foo"},{"item_name":"Boo"},{"item_name":"buzz"}]
+
+@app.get("/items")
+async def list_items(skip: int = 0, limit: int = 10):
+    return fake_item_db[skip:skip+limit]
+
+@app.get("/items/{item_id}")
+async def get_item(item_id : str,q: Optional[str]=None):
+    if q:
+        return {"item_id":item_id,"q":q}
+    return {"item_id":item_id}
+
+@app.get("/itemss/{item_id}")
+async def get_item(item_id : str,q: str | None = None, short : bool = False):
+    item = {"item_id":item_id}
+    if q:
+        item.update({"q":"This is quary parameter has been added to the item"})
+    if not short:
+        item.update({"description":"This is a small descritpion"})
+    return item
+
+@app.get("/user/{user_id}/item/{item_id}")
+async def get_user_item(user_id : str, item_id : str, q : str | None = None, short : bool =False):
+    item = {"item_id":item_id,"owner":user_id}
+    if q:
+        item.update({"q":q})
+    if not short:
+        item.update({"short":"little short description"})
+    return item
